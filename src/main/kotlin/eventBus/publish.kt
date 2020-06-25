@@ -4,7 +4,7 @@ import io.vertx.core.AbstractVerticle
 import io.vertx.core.Vertx
 import org.slf4j.LoggerFactory
 
-private class A: AbstractVerticle(){
+class A: AbstractVerticle(){
     override fun start() {
         val bus = vertx.eventBus()
         bus.consumer<Any>("com")
@@ -14,7 +14,7 @@ private class A: AbstractVerticle(){
     }
 }
 
-private class B: AbstractVerticle() {
+class B: AbstractVerticle() {
     override fun start() {
         val bus = vertx.eventBus()
         bus.consumer<Any>("com")
@@ -26,7 +26,7 @@ private class B: AbstractVerticle() {
     }
 }
 
-private class C: AbstractVerticle(){
+class C: AbstractVerticle(){
     override fun start() {
         val bus = vertx.eventBus()
         vertx.setPeriodic(1000) {

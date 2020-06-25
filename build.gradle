@@ -26,6 +26,7 @@ dependencies {
     compile group: 'io.vertx', name: 'vertx-service-discovery', version: '4.0.0-milestone5'
     compile group: 'io.vertx', name: 'vertx-lang-kotlin-coroutines', version: '4.0.0-milestone5'
     compile group: 'io.vertx', name: 'vertx-ignite', version: '4.0.0-milestone5'
+    compile group: 'io.vertx', name: 'vertx-hazelcast', version: '4.0.0-milestone5'
 
 
 
