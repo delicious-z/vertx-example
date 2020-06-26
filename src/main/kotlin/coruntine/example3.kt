@@ -5,6 +5,7 @@ import io.vertx.core.Vertx
 import io.vertx.core.eventbus.EventBus
 import io.vertx.core.eventbus.Message
 import io.vertx.kotlin.coroutines.CoroutineVerticle
+import io.vertx.kotlin.coroutines.await
 import io.vertx.kotlin.coroutines.awaitResult
 import io.vertx.kotlin.coroutines.dispatcher
 import kotlinx.coroutines.Dispatchers
@@ -33,9 +34,14 @@ private class ApiVerticle : CoroutineVerticle() {
                 log.info("ApiVerticle receive request: ${it.body()}")
                 GlobalScope.launch(Dispatchers.Unconfined) {
                     log.info("Send a message to Service Verticle and wait for a reply...")
-                    val reply = awaitResult<Message<String>> { h ->
-                        vertx.eventBus().request("a.b", "ping", h)
-                    }
+                    // style 1
+//                    val reply = awaitResult<Message<String>> { handler ->
+//                        vertx.eventBus().request("a.b", "ping", handler)
+//                    }
+                    // style 2
+                    val reply = vertx.eventBus().request<Any>("a.b", "ping").await()
+
+
                     log.warn("Reply received: ${reply.body()}")
                 }
             }
