@@ -4,7 +4,7 @@ import io.vertx.core.AbstractVerticle
 import io.vertx.core.Vertx
 import org.slf4j.LoggerFactory
 
-class A: AbstractVerticle(){
+class SampleConsumerA: AbstractVerticle(){
     override fun start() {
         val bus = vertx.eventBus()
         bus.consumer<Any>("com")
@@ -14,7 +14,7 @@ class A: AbstractVerticle(){
     }
 }
 
-class B: AbstractVerticle() {
+class SampleConsumerB: AbstractVerticle() {
     override fun start() {
         val bus = vertx.eventBus()
         bus.consumer<Any>("com")
@@ -42,8 +42,8 @@ sealed class PublishExample
 fun main() {
     val vertx = Vertx.vertx()
     val log = LoggerFactory.getLogger(PublishExample::class.java)
-    vertx.deployVerticle(A())
-        .onSuccess { vertx.deployVerticle(B()) }
+    vertx.deployVerticle(SampleConsumerA())
+        .onSuccess { vertx.deployVerticle(SampleConsumerB()) }
         .onSuccess { vertx.deployVerticle(C()) }
         .onComplete {
             if (it.succeeded()) log.info("all success.")
