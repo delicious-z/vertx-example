@@ -6,21 +6,15 @@ import io.vertx.core.eventbus.EventBus
 import io.vertx.core.eventbus.Message
 import io.vertx.kotlin.coroutines.CoroutineVerticle
 import io.vertx.kotlin.coroutines.awaitResult
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import org.slf4j.LoggerFactory
 
 private val log = LoggerFactory.getLogger("log")
 
-suspend fun awaitResultExample(eventbus: EventBus) {
-    log.info("Send a message and wait for a reply...")
-    val reply = awaitResult<Message<String>> { h ->
-        eventbus.request("a.b.c", "ping", h)
-    }
-    log.info("Reply received: ${reply.body()}")
-}
-
-private class ConsumerVerticle : AbstractVerticle() {
+private class ServiceVerticle : AbstractVerticle() {
     override fun start() {
-        val consumer = vertx.eventBus().localConsumer<String>("a.b.c")
+        val consumer = vertx.eventBus().localConsumer<String>("a.b.")
         consumer.handler {
             log.info("Consumer received: ${it.body()}")
             val request = it
@@ -29,15 +23,24 @@ private class ConsumerVerticle : AbstractVerticle() {
     }
 }
 
-private class SenderVerticle : CoroutineVerticle() {
+private class ApiVerticle : CoroutineVerticle() {
     override suspend fun start() {
         vertx.setPeriodic(1000) { log.info("periodic job.") }
-        awaitResultExample(vertx.eventBus())
+        vertx.eventBus().localConsumer<Int>("a.")
+            .handler {
+                GlobalScope.launch {
+                    log.info("Send a message and wait for a reply...")
+                    val reply = awaitResult<Message<String>> { h ->
+                        vertx.eventBus().request("a.b.c", "ping", h)
+                    }
+                    log.info("Reply received: ${reply.body()}")
+                }
+            }
     }
 }
 
 fun main() {
     val vertx = Vertx.vertx()
-    vertx.deployVerticle(ConsumerVerticle())
-        .onSuccess { vertx.deployVerticle(SenderVerticle()) }
+    vertx.deployVerticle(ServiceVerticle())
+        .onSuccess { vertx.deployVerticle(ApiVerticle()) }
 }
