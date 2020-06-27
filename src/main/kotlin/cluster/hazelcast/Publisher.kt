@@ -1,6 +1,6 @@
 package cluster.hazelcast
 
-import eventBus.C
+import eventBus.SamplePublisher
 import io.vertx.core.Vertx
 import io.vertx.core.VertxOptions
 import io.vertx.core.spi.cluster.ClusterManager
@@ -21,7 +21,7 @@ fun main() {
     future.onComplete {
         if (it.failed()) log.error("get cluster vertx failed.", it.cause())
         else {
-            it.result().deployVerticle(C())
+            it.result().deployVerticle(SamplePublisher())
         }
 
     }

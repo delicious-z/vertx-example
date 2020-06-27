@@ -26,7 +26,7 @@ class SampleConsumerB: AbstractVerticle() {
     }
 }
 
-class C: AbstractVerticle(){
+class SamplePublisher: AbstractVerticle(){
     override fun start() {
         val bus = vertx.eventBus()
         vertx.setPeriodic(1000) {
@@ -44,7 +44,7 @@ fun main() {
     val log = LoggerFactory.getLogger(PublishExample::class.java)
     vertx.deployVerticle(SampleConsumerA())
         .onSuccess { vertx.deployVerticle(SampleConsumerB()) }
-        .onSuccess { vertx.deployVerticle(C()) }
+        .onSuccess { vertx.deployVerticle(SamplePublisher()) }
         .onComplete {
             if (it.succeeded()) log.info("all success.")
             else log.error("failed.",it.cause())
