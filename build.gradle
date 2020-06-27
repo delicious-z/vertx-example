@@ -33,6 +33,18 @@ dependencies {
 
 }
 
+
+jar {
+    from {
+        configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
+    }
+    manifest {
+        attributes "Manifest-Version": 1.0,
+                'Main-Class': 'Main'
+    }
+}
+
+
 compileKotlin {
     kotlinOptions.jvmTarget = "13"
 }

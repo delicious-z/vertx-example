@@ -3,24 +3,27 @@ package eventBus
 import io.vertx.core.AbstractVerticle
 import io.vertx.core.Vertx
 import org.slf4j.LoggerFactory
+import kotlin.math.log
 
 class SampleConsumerA: AbstractVerticle(){
     override fun start() {
         val bus = vertx.eventBus()
+        val log = LoggerFactory.getLogger(this.javaClass)
         bus.consumer<Any>("com")
             .handler { request-> run {
-                println("A: ${request.body()}")
+                log.info("A: ${request.body()}")
             } }
     }
 }
 
 class SampleConsumerB: AbstractVerticle() {
     override fun start() {
+        val log = LoggerFactory.getLogger(this.javaClass)
         val bus = vertx.eventBus()
         bus.consumer<Any>("com")
             .handler { request ->
                 run {
-                    println("B: ${request.body()}")
+                    log.info("B: ${request.body()}")
                 }
             }
     }
@@ -29,7 +32,7 @@ class SampleConsumerB: AbstractVerticle() {
 class SamplePublisher: AbstractVerticle(){
     override fun start() {
         val bus = vertx.eventBus()
-        vertx.setPeriodic(1000) {
+        vertx.setPeriodic(1500) {
             run {
                 bus.publish("com", 1)
             }
