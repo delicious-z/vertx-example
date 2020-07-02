@@ -3,38 +3,42 @@ package asyncRpc
 import io.vertx.core.AbstractVerticle
 import io.vertx.core.Promise
 import io.vertx.core.Vertx
-import java.lang.reflect.InvocationHandler
-import java.lang.reflect.Method
+import io.vertx.core.json.Json
+
+object MathServiceObject : MathService {
+    override fun add(a: Int, b: Int): Promise<Int> {
+        return Promise.promise()
+    }
+}
 
 private class Verticle_A : AbstractVerticle() {
 
-    var rpcRequestSender: RpcRequestSender? = null
+    private var asyncRpc: AsyncRpc? = null
 
     override fun start() {
-        rpcRequestSender = VertxRpcRequestSender(vertx.eventBus(), context.deploymentID())
+        val bus = vertx.eventBus()
+        asyncRpc = AsyncRpc(
+            VertxRpcRequestSender(bus, "rpc-result-${context.deploymentID()}")
+        )
+        val mathService = asyncRpc!!.getClient(MathServiceObject) as MathService
+        vertx.setPeriodic(2000) { mathService.add(1, 2) }
+    }
+}
+
+private class Verticle_B : AbstractVerticle() {
+    override fun start() {
+        val bus = vertx.eventBus()
+        bus.consumer<String>(AsyncRpcConstants.SERVICE_DISCOVERY_ADDRESS)
+            .handler {
+                val rpcRequest = Json.decodeValue(it.body(), RpcRequest::class.java)
+                println("receive rpcRequest: $rpcRequest")
+                println("requestAddress: ${it.headers()[AsyncRpcConstants.RECEIVER_ADDRESS]}")
+            }
     }
 }
 
 fun main() {
-
-//    val mathService = object : MathService {
-//        override fun add(a: Int, b: Int): Promise<Int>{
-//            return Promise.promise()
-//        }
-//    }
-//
-//    val proxy = Proxy.newProxyInstance(
-//        MathService::class.java.classLoader,
-//        arrayOf(MathService::class.java),
-//        DynamicProxyHandler(mathService)
-//    )  as MathService
-//    print(proxy.add(4,5))
-//
-//
-//    val jsonStr = Json.encode(mathService.add(1,2))
-//
-//    println()
-//    println("JsonRes: $jsonStr")
-
-    Vertx.vertx().deployVerticle(Verticle_A())
+    val vertx = Vertx.vertx()
+    vertx.deployVerticle(Verticle_A())
+        .onSuccess { vertx.deployVerticle(Verticle_B()) }
 }
