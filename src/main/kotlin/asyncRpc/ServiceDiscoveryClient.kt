@@ -1,5 +1,6 @@
 package asyncRpc
 
+import io.vertx.core.Future
 import io.vertx.core.Vertx
 import io.vertx.core.json.Json
 import java.lang.reflect.Method
@@ -32,8 +33,19 @@ class VertxServiceDiscoveryClient(val vertx: Vertx, private val consumeAddress:S
         val obj = serviceObjects[rpcRequest.serviceClass]
         val method = serviceMethods[rpcRequest.methodId]
         vertx.executeBlocking<Any> {
-            val res = method!!.invoke(obj, rpcRequest.args)
-            vertx.eventBus().send(receiverAddr,Json.encode(res))
+            val res = method!!.invoke(obj, *rpcRequest.args) as Future<*>
+            println("provider res: ${res.succeeded()}")
+            res.onComplete {
+                println("complete! ${it.result()} ${it.succeeded()} ${it.cause()}")
+                val rpcResponse = RpcResponse(
+                    Json.encode(it.result()),
+                    rpcRequest.promiseId,
+                    it.succeeded(),
+                    it.cause()?.toString()?:""
+                )
+                println("provider将消息 $rpcResponse 发给：$receiverAddr ")
+                vertx.eventBus().send(receiverAddr,Json.encode(rpcResponse))
+            }
         }
     }
 

@@ -10,7 +10,7 @@ data class RpcRequest(
     val serviceClass: String = "",
     val methodId: String = "",
     var promiseId: Int = 0,
-    val args: Array<out Any>? = null
+    val args: Array<Any> = arrayOf()
 )
 
 data class RpcResponse(

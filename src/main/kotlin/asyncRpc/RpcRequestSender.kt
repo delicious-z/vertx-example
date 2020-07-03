@@ -34,7 +34,7 @@ class VertxRpcRequestSender(val eventBus: EventBus, private val receiverAddress:
 
     init {
         eventBus.consumer<String>(receiverAddress) {
-            log.info(it.body())
+            log.info("服务消费者接受到RPC结果消息：${it.body()}")
             val rpcResponse = Json.decodeValue(it.body(), RpcResponse::class.java)
             val promiseId: Int = rpcResponse.promiseId
             val promise = promiseMap.get(promiseId)

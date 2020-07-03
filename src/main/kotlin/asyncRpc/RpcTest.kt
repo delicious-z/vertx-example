@@ -7,8 +7,8 @@ import io.vertx.core.Vertx
 import io.vertx.core.json.Json
 import io.vertx.kotlin.coroutines.CoroutineVerticle
 import io.vertx.kotlin.coroutines.await
-import io.vertx.kotlin.coroutines.awaitResult
 import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 object MathServiceObject : MathService {
@@ -27,11 +27,10 @@ private class Verticle_A : CoroutineVerticle() {
             VertxRpcRequestSender(bus, "rpc-result-${context.deploymentID()}")
         )
         val mathService = asyncRpc!!.getClient(MathServiceObject) as MathService
-        vertx.setPeriodic(2000) {
-            GlobalScope.launch{
-                val res = mathService.add(1, 2)!!.await()
-                println(res)
-            }
+        GlobalScope.launch {
+            delay(1000)
+            val res = mathService.add(1, 2)!!.await()
+            println("rpc receive result: $res")
         }
     }
 }
@@ -39,17 +38,16 @@ private class Verticle_A : CoroutineVerticle() {
 private class Verticle_B : AbstractVerticle() {
 
 
-
     override fun start() {
         val bus = vertx.eventBus()
         val receiveAddress = "rpc-result-${context.deploymentID()}"
-        val sender = VertxRpcRequestSender(bus,receiveAddress)
-        val serviceDiscoveryClient = VertxServiceDiscoveryClient(vertx,"rpc-consume-${context.deploymentID()}")
+        val sender = VertxRpcRequestSender(bus, receiveAddress)
+        val serviceDiscoveryClient = VertxServiceDiscoveryClient(vertx, "rpc-consume-${context.deploymentID()}")
 
-        val mathService = object :MathService{
+        val mathService = object : MathService {
             override fun add(a: Int, b: Int): Future<Int>? {
                 println("add invoke!!!")
-                return Future.succeededFuture(a+b)
+                return Future.succeededFuture(a + b)
             }
         }
         serviceDiscoveryClient.register(mathService)

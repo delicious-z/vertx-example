@@ -28,7 +28,7 @@ class AsyncRpc(
         private var target: Any,
         private val rpcRequestSender: RpcRequestSender
     ) : InvocationHandler {
-        override fun invoke(proxy: Any, method: Method, args: Array<out Any>?): Future<Any>? {
+        override fun invoke(proxy: Any, method: Method, args: Array< Any>): Future<Any>? {
             val res = Promise.promise<Any>()
             val rpcRequest = RpcRequest(
                 serviceClass = getRpcClassStr(target),
