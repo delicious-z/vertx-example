@@ -8,9 +8,6 @@ import io.vertx.core.eventbus.EventBus
 import io.vertx.core.json.Json
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import java.lang.reflect.InvocationHandler
-import java.lang.reflect.Method
-import java.lang.reflect.Proxy
 
 
 interface RpcRequestSender {
@@ -34,7 +31,6 @@ abstract class AbstractRpcRequestSender : RpcRequestSender {
 class VertxRpcRequestSender(val eventBus: EventBus, private val receiverAddress: String) : AbstractRpcRequestSender() {
     private val log: Logger = LoggerFactory.getLogger(this.javaClass)
 
-
     init {
         eventBus.consumer<String>(receiverAddress) {
             log.info(it.body())
@@ -55,7 +51,7 @@ class VertxRpcRequestSender(val eventBus: EventBus, private val receiverAddress:
         val deliveryOptions: DeliveryOptions = DeliveryOptions()
         deliveryOptions.headers = MultiMap.caseInsensitiveMultiMap()
             .add(AsyncRpcConstants.RECEIVER_ADDRESS, receiverAddress)
-        eventBus.send(AsyncRpcConstants.SERVICE_DISCOVERY_ADDRESS, Json.encode(rpcRequest),deliveryOptions)
+        eventBus.send(AsyncRpcConstants.SERVICE_REQUEST_ADDRESS, Json.encode(rpcRequest),deliveryOptions)
     }
 
     override fun receiverAddress(): String {

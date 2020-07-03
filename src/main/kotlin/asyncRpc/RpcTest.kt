@@ -28,7 +28,7 @@ private class Verticle_A : AbstractVerticle() {
 private class Verticle_B : AbstractVerticle() {
     override fun start() {
         val bus = vertx.eventBus()
-        bus.consumer<String>(AsyncRpcConstants.SERVICE_DISCOVERY_ADDRESS)
+        bus.consumer<String>(AsyncRpcConstants.SERVICE_REQUEST_ADDRESS)
             .handler {
                 val rpcRequest = Json.decodeValue(it.body(), RpcRequest::class.java)
                 println("receive rpcRequest: $rpcRequest")

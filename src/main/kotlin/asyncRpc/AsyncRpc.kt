@@ -30,7 +30,7 @@ class AsyncRpc(
         override fun invoke(proxy: Any, method: Method, args: Array<out Any>?): Promise<Any>? {
             val res = Promise.promise<Any>()
             val rpcRequest = RpcRequest(
-                className = getRpcClassStr(target),
+                serviceClass = getRpcClassStr(target),
                 methodId = getMethodId(method),
                 args = args
             )
