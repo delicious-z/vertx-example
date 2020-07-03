@@ -27,16 +27,11 @@ class VertxServiceDiscoveryClient(val vertx: Vertx, private val consumeAddress:S
     private val serviceMethods:HashMap<String,Method> = HashMap()
 
     private fun invoke(rpcRequest: RpcRequest,receiverAddr:String){
-        println("invoke!")
-        println(serviceMethods.size)
-        println(serviceObjects.size)
         val obj = serviceObjects[rpcRequest.serviceClass]
         val method = serviceMethods[rpcRequest.methodId]
         vertx.executeBlocking<Any> {
             val res = method!!.invoke(obj, *rpcRequest.args) as Future<*>
-            println("provider res: ${res.succeeded()}")
             res.onComplete {
-                println("complete! ${it.result()} ${it.succeeded()} ${it.cause()}")
                 val rpcResponse = RpcResponse(
                     Json.encode(it.result()),
                     rpcRequest.promiseId,
