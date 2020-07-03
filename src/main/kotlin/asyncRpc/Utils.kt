@@ -1,4 +1,5 @@
 package asyncRpc
+import io.vertx.core.Future
 import io.vertx.core.Promise
 import java.lang.reflect.Method
 import java.util.*
@@ -16,11 +17,18 @@ fun getRpcClassStr(target:Any):String{
     return target::class.superclasses[0].toString()
 }
 
+fun getServiceMethods(target: Any): Array<Method> {
+    return target::class.java.interfaces[0].declaredMethods
+}
+
 fun main() {
     val mathService = object :MathService{
-        override fun add(a: Int, b: Int): Promise<Int> {
+        override fun add(a: Int, b: Int): Future<Int> {
             TODO("Not yet implemented")
         }
     }
     println(getRpcClassStr(mathService))
+    for (m in mathService::class.java.declaredMethods){
+        println(getMethodId(m))
+    }
 }

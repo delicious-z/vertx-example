@@ -1,5 +1,6 @@
 package asyncRpc
 
+import io.vertx.core.Future
 import io.vertx.core.MultiMap
 import io.vertx.core.Promise
 import io.vertx.core.Vertx
@@ -11,18 +12,18 @@ import org.slf4j.LoggerFactory
 
 
 interface RpcRequestSender {
-    fun send(promise: Promise<Any>, rpcRequest: RpcRequest): Promise<Any>
+    fun send(future: Promise<Any>, rpcRequest: RpcRequest): Promise<Any>
     fun receiverAddress(): String
 }
 
 abstract class AbstractRpcRequestSender : RpcRequestSender {
     protected val promiseMap: HashMap<Int, Promise<Any>> = HashMap()
-    override fun send(promise: Promise<Any>, rpcRequest: RpcRequest): Promise<Any> {
-        val promiseId = promise.hashCode()
+    override fun send(future: Promise<Any>, rpcRequest: RpcRequest): Promise<Any> {
+        val promiseId = future.hashCode()
         rpcRequest.promiseId = promiseId
-        promiseMap.put(promiseId, promise)
+        promiseMap.put(promiseId, future)
         doSend(rpcRequest)
-        return promise
+        return future
     }
 
     abstract fun doSend(rpcRequest: RpcRequest)
@@ -64,8 +65,8 @@ class VertxRpcRequestSender(val eventBus: EventBus, private val receiverAddress:
 
 fun main() {
     val mathService = object : MathService {
-        override fun add(a: Int, b: Int): Promise<Int> {
-            return Promise.promise()
+        override fun add(a: Int, b: Int): Future<Int> {
+            return Promise.promise<Int>().future()
         }
 
     }

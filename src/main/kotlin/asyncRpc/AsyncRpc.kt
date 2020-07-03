@@ -1,5 +1,6 @@
 package asyncRpc
 
+import io.vertx.core.Future
 import io.vertx.core.Promise
 import java.lang.reflect.InvocationHandler
 import java.lang.reflect.Method
@@ -27,7 +28,7 @@ class AsyncRpc(
         private var target: Any,
         private val rpcRequestSender: RpcRequestSender
     ) : InvocationHandler {
-        override fun invoke(proxy: Any, method: Method, args: Array<out Any>?): Promise<Any>? {
+        override fun invoke(proxy: Any, method: Method, args: Array<out Any>?): Future<Any>? {
             val res = Promise.promise<Any>()
             val rpcRequest = RpcRequest(
                 serviceClass = getRpcClassStr(target),
@@ -35,7 +36,7 @@ class AsyncRpc(
                 args = args
             )
             rpcRequestSender.send(res, rpcRequest)
-            return res
+            return res.future()
         }
     }
 }

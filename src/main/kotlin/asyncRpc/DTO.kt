@@ -2,8 +2,8 @@ package asyncRpc
 
 
 data class ServiceInfo(
-    val serviceClass:String,
-    val address:String
+    val serviceClass:String = "",
+    val address:String = ""
 )
 
 data class RpcRequest(
